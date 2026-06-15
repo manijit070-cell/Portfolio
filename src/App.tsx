@@ -23,6 +23,7 @@ import {
   Zap,
 } from 'lucide-react'
 import {
+  AnimatePresence,
   motion,
   useMotionTemplate,
   useMotionValue,
@@ -37,6 +38,16 @@ import './App.css'
 import heroLayer from '@/assets/hero.png'
 import { Card } from '@/components/ui/card'
 import { SplineScene } from '@/components/ui/splite'
+
+import auroraPreview from '@/assets/previews/aurora.png'
+import cafePreview from '@/assets/previews/cafe.png'
+import trPreview from '@/assets/previews/tr.png'
+
+const previews: Record<string, string> = {
+  'Aurora Table Cafe': auroraPreview,
+  'Cafe Website': cafePreview,
+  'TR Enterprises': trPreview,
+}
 
 type Project = {
   title: string
@@ -520,75 +531,71 @@ function Hero({
 }
 
 function ProjectShowcase({ transition }: { transition: Transition }) {
-  const [width, setWidth] = useState(0)
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const x = useMotionValue(0)
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      setWidth(carouselRef.current.scrollWidth - carouselRef.current.offsetWidth)
-    }
-    const handleResize = () => {
-      if (carouselRef.current) {
-        setWidth(carouselRef.current.scrollWidth - carouselRef.current.offsetWidth)
-      }
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
 
   return (
-    <div className="py-4 md:py-12">
-      <motion.div ref={carouselRef} className="cursor-grab overflow-hidden active:cursor-grabbing">
-        <motion.div 
-          drag="x" 
-          dragConstraints={{ right: 0, left: -width }} 
-          style={{ x }}
-          className="flex gap-6 md:gap-8 px-2 md:px-4 pb-8"
-        >
-          {projects.map((project, i) => (
-            <CarouselCard key={project.title} project={project} index={i} containerX={x} />
-          ))}
-        </motion.div>
-      </motion.div>
-      <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <ArrowRight className="h-4 w-4 animate-pulse" />
-        <span>Drag to explore</span>
+    <div className="relative py-12 min-h-[60vh] flex items-center justify-center">
+      {/* Floating Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-7xl mx-auto w-full z-10 relative">
+         {projects.map((project, index) => (
+           <motion.div
+             key={project.title}
+             initial={{ y: 0 }}
+             animate={{ y: [0, -10, 0] }}
+             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.2 }}
+             onMouseEnter={() => setHoveredProject(project)}
+             onMouseLeave={() => setHoveredProject(null)}
+             className="relative bg-background/60 border border-border/40 backdrop-blur-xl rounded-2xl p-5 shadow-lg cursor-pointer hover:border-primary/50 transition-colors group flex flex-col justify-between overflow-hidden"
+           >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div>
+                <h3 className="text-lg font-bold z-10 relative mb-2">{project.title}</h3>
+                <p className="text-xs text-muted-foreground z-10 relative line-clamp-2 mb-4">{project.description}</p>
+              </div>
+              <div className="flex gap-1 flex-wrap z-10 relative mt-auto">
+                 {project.tags.slice(0, 2).map(tag => (
+                   <span key={tag} className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded-full">{tag}</span>
+                 ))}
+              </div>
+           </motion.div>
+         ))}
       </div>
-    </div>
-  )
-}
 
-function CarouselCard({ project, index, containerX }: { project: Project; index: number; containerX: any }) {
-  const imageX = useTransform(containerX, (v: number) => v * -0.15)
-
-  return (
-    <div className="group relative h-[450px] min-w-[85vw] shrink-0 overflow-hidden rounded-3xl border border-border/50 shadow-2xl md:h-[550px] md:min-w-[600px]">
-      <motion.div 
-        className="absolute -left-[10%] inset-y-0 w-[120%]"
-        style={{ x: imageX }}
-      >
-        <img src={project.image} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-      </motion.div>
-      
-      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100" />
-      
-      <div className="absolute bottom-0 left-0 z-10 w-full translate-y-4 p-8 transition-transform duration-500 group-hover:translate-y-0 md:p-10">
-        <h3 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">{project.title}</h3>
-        <p className="mb-6 line-clamp-3 text-muted-foreground md:line-clamp-none">{project.description}</p>
-        <div className="mb-6 flex flex-wrap gap-2">
-           {project.tags.map(tag => (
-              <span key={tag} className="rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
-                {tag}
-              </span>
-           ))}
-        </div>
-        {project.href && (
-           <a href={project.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-primary/80">
-             Explore Project <ExternalLink className="h-4 w-4" />
-           </a>
+      {/* The Live Preview "Video" Glassmorphism Overlay */}
+      <AnimatePresence>
+        {hoveredProject && previews[hoveredProject.title] && (
+           <motion.div 
+             initial={{ opacity: 0, scale: 0.95, y: 20 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.95, y: 20 }}
+             transition={{ duration: 0.3 }}
+             className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4"
+           >
+              {/* Glassmorphic Container */}
+              <div className="w-full max-w-5xl aspect-video bg-background/20 backdrop-blur-3xl border border-white/20 rounded-[2rem] shadow-2xl shadow-black/50 overflow-hidden relative flex flex-col">
+                 <div className="h-10 bg-black/40 border-b border-white/10 flex items-center px-4 gap-2 shrink-0">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                    <div className="mx-auto px-4 py-1 rounded-md bg-black/40 text-[10px] text-white/70 font-mono flex items-center gap-2">
+                       {hoveredProject.title} <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> Live Preview
+                    </div>
+                 </div>
+                 <div className="relative flex-1 overflow-hidden bg-black/50">
+                    {/* Scrolling Image */}
+                    <motion.div
+                       className="w-full absolute top-0 left-0"
+                       initial={{ y: "0%" }}
+                       animate={{ y: "-50%" }}
+                       transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
+                    >
+                       <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover" />
+                    </motion.div>
+                 </div>
+              </div>
+           </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   )
 }
