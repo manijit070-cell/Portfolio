@@ -42,6 +42,7 @@ type Project = {
   description: string
   tags: string[]
   href?: string
+  image?: string
 }
 
 type Experience = {
@@ -65,6 +66,7 @@ const projects: Project[] = [
       'A polished cafe website with a refined menu experience, atmospheric visuals, and smooth responsive browsing.',
     tags: ['Cafe', 'Vercel', 'Responsive'],
     href: 'https://aurora-table-cafe.vercel.app/',
+    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80',
   },
   {
     title: 'Cafe Website',
@@ -72,6 +74,7 @@ const projects: Project[] = [
       'A modern cafe landing experience built for quick exploration, clear sections, and clean food-service presentation.',
     tags: ['Restaurant', 'Frontend', 'Vercel'],
     href: 'https://cafe-website-alpha-seven.vercel.app/',
+    image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=600&q=80',
   },
   {
     title: 'TR Enterprises',
@@ -79,30 +82,35 @@ const projects: Project[] = [
       'A business website for presenting services, brand details, and customer contact paths through a direct web presence.',
     tags: ['Business', 'Website', 'Vercel'],
     href: 'https://tr-enterpriises.vercel.app/',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&q=80',
   },
   {
     title: 'Sentinel Pro AI',
     description:
       'Self-evolving AI platform concept with modular plugin architecture, adaptability, automation, and intelligent decision-making.',
     tags: ['AI', 'Automation', 'Architecture'],
+    image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80',
   },
   {
     title: 'AI-Based Development Projects',
     description:
       'Multiple AI-powered applications and automation tools built to solve real workflow problems and improve productivity.',
     tags: ['Prompting', 'Tools', 'Systems'],
+    image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&q=80',
   },
   {
     title: 'Responsive Web Projects',
     description:
       'Modern responsive websites using HTML, CSS, and JavaScript with a focus on usability, speed, and clean interfaces.',
     tags: ['HTML5', 'CSS3', 'JavaScript'],
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
   },
   {
     title: 'Freelance Client Builds',
     description:
       'Client-facing digital projects delivered with requirement gathering, communication, project timelines, and real-world polish.',
     tags: ['Freelance', 'Delivery', 'Web'],
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80',
   },
 ]
 
@@ -511,23 +519,76 @@ function Hero({
 }
 
 function ProjectShowcase({ transition }: { transition: Transition }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 }
+  const smoothX = useSpring(mouseX, springConfig)
+  const smoothY = useSpring(mouseY, springConfig)
+  const shouldReduceMotion = useReducedMotion()
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      // Offset so image is centered on cursor
+      mouseX.set(e.clientX - 160)
+      mouseY.set(e.clientY - 120)
+    },
+    [mouseX, mouseY]
+  )
+
   return (
-    <>
-      <ProjectShuffleDeck />
-      <motion.div
-        variants={container}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
-        className="hidden gap-6 md:grid md:grid-cols-2 lg:grid-cols-3"
-      >
-        {projects.map((project) => (
-          <motion.div key={project.title} variants={fadeUp} transition={transition}>
-            <ProjectCard project={project} />
-          </motion.div>
-        ))}
-      </motion.div>
-    </>
+    <div className="relative w-full border-t border-border/40" onMouseMove={handleMouseMove}>
+      {projects.map((project, index) => (
+        <a
+          key={project.title}
+          href={project.href || '#'}
+          target={project.href ? '_blank' : undefined}
+          rel={project.href ? 'noreferrer' : undefined}
+          className="group block border-b border-border/40 py-8 transition-colors hover:bg-muted/30 md:py-12"
+          onMouseEnter={() => setHoveredIndex(index)}
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
+          <div className="flex flex-col gap-4 px-4 md:flex-row md:items-center md:justify-between md:px-8">
+            <h3 className="text-3xl font-bold tracking-tight text-foreground transition-all duration-300 group-hover:translate-x-4 group-hover:text-primary md:text-5xl lg:text-6xl">
+              {project.title}
+            </h3>
+            <div className="flex flex-wrap gap-2 md:justify-end">
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-border/60 bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors group-hover:border-primary/40 group-hover:text-primary"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </a>
+      ))}
+
+      {!shouldReduceMotion && (
+        <motion.div
+          className="pointer-events-none fixed left-0 top-0 z-50 hidden h-[240px] w-[320px] overflow-hidden rounded-2xl shadow-2xl shadow-black/40 md:block"
+          style={{ x: smoothX, y: smoothY, opacity: hoveredIndex !== null ? 1 : 0, scale: hoveredIndex !== null ? 1 : 0.8 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: hoveredIndex !== null ? 1 : 0, scale: hoveredIndex !== null ? 1 : 0.8 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
+          {projects.map((project, index) => (
+            <img
+              key={project.title}
+              src={project.image}
+              alt=""
+              aria-hidden="true"
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                hoveredIndex === index ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/30 to-muted" />
+        </motion.div>
+      )}
+    </div>
   )
 }
 
