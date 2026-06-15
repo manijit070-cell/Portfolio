@@ -520,75 +520,75 @@ function Hero({
 }
 
 function ProjectShowcase({ transition }: { transition: Transition }) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 }
-  const smoothX = useSpring(mouseX, springConfig)
-  const smoothY = useSpring(mouseY, springConfig)
-  const shouldReduceMotion = useReducedMotion()
+  const [width, setWidth] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      // Offset so image is centered on cursor
-      mouseX.set(e.clientX - 160)
-      mouseY.set(e.clientY - 120)
-    },
-    [mouseX, mouseY]
-  )
+  useEffect(() => {
+    if (carouselRef.current) {
+      setWidth(carouselRef.current.scrollWidth - carouselRef.current.offsetWidth)
+    }
+    const handleResize = () => {
+      if (carouselRef.current) {
+        setWidth(carouselRef.current.scrollWidth - carouselRef.current.offsetWidth)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   return (
-    <div className="relative w-full border-t border-border/40" onMouseMove={handleMouseMove}>
-      {projects.map((project, index) => (
-        <a
-          key={project.title}
-          href={project.href || '#'}
-          target={project.href ? '_blank' : undefined}
-          rel={project.href ? 'noreferrer' : undefined}
-          className="group block border-b border-border/40 py-8 transition-colors hover:bg-muted/30 md:py-12"
-          onMouseEnter={() => setHoveredIndex(index)}
-          onMouseLeave={() => setHoveredIndex(null)}
+    <div className="py-4 md:py-12">
+      <motion.div ref={carouselRef} className="cursor-grab overflow-hidden active:cursor-grabbing">
+        <motion.div 
+          drag="x" 
+          dragConstraints={{ right: 0, left: -width }} 
+          style={{ x }}
+          className="flex gap-6 md:gap-8 px-2 md:px-4 pb-8"
         >
-          <div className="flex flex-col gap-4 px-4 md:flex-row md:items-center md:justify-between md:px-8">
-            <h3 className="text-3xl font-bold tracking-tight text-foreground transition-all duration-300 group-hover:translate-x-4 group-hover:text-primary md:text-5xl lg:text-6xl">
-              {project.title}
-            </h3>
-            <div className="flex flex-wrap gap-2 md:justify-end">
-              {project.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-border/60 bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-colors group-hover:border-primary/40 group-hover:text-primary"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </a>
-      ))}
-
-      {!shouldReduceMotion && (
-        <motion.div
-          className="pointer-events-none fixed left-0 top-0 z-50 hidden h-[240px] w-[320px] overflow-hidden rounded-2xl shadow-2xl shadow-black/40 md:block"
-          style={{ x: smoothX, y: smoothY, opacity: hoveredIndex !== null ? 1 : 0, scale: hoveredIndex !== null ? 1 : 0.8 }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: hoveredIndex !== null ? 1 : 0, scale: hoveredIndex !== null ? 1 : 0.8 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-        >
-          {projects.map((project, index) => (
-            <img
-              key={project.title}
-              src={project.image}
-              alt=""
-              aria-hidden="true"
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-                hoveredIndex === index ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
+          {projects.map((project, i) => (
+            <CarouselCard key={project.title} project={project} index={i} containerX={x} />
           ))}
-          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/30 to-muted" />
         </motion.div>
-      )}
+      </motion.div>
+      <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <ArrowRight className="h-4 w-4 animate-pulse" />
+        <span>Drag to explore</span>
+      </div>
+    </div>
+  )
+}
+
+function CarouselCard({ project, index, containerX }: { project: Project; index: number; containerX: any }) {
+  const imageX = useTransform(containerX, (v: number) => v * -0.15)
+
+  return (
+    <div className="group relative h-[450px] min-w-[85vw] shrink-0 overflow-hidden rounded-3xl border border-border/50 shadow-2xl md:h-[550px] md:min-w-[600px]">
+      <motion.div 
+        className="absolute -left-[10%] inset-y-0 w-[120%]"
+        style={{ x: imageX }}
+      >
+        <img src={project.image} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      </motion.div>
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100" />
+      
+      <div className="absolute bottom-0 left-0 z-10 w-full translate-y-4 p-8 transition-transform duration-500 group-hover:translate-y-0 md:p-10">
+        <h3 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">{project.title}</h3>
+        <p className="mb-6 line-clamp-3 text-muted-foreground md:line-clamp-none">{project.description}</p>
+        <div className="mb-6 flex flex-wrap gap-2">
+           {project.tags.map(tag => (
+              <span key={tag} className="rounded-full border border-primary/30 bg-primary/20 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md">
+                {tag}
+              </span>
+           ))}
+        </div>
+        {project.href && (
+           <a href={project.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-primary/80">
+             Explore Project <ExternalLink className="h-4 w-4" />
+           </a>
+        )}
+      </div>
     </div>
   )
 }
