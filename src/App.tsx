@@ -167,7 +167,7 @@ const hackathons: Hackathon[] = [
 
 const socialLinks = [
   { label: 'GitHub', href: 'https://github.com/manijit070-cell', icon: GitBranch },
-  { label: 'Email', href: 'mailto:manijit070@gmail.com', icon: Mail },
+  { label: 'Email', href: 'https://mail.google.com/mail/?view=cm&fs=1&to=manijit070@gmail.com', icon: Mail },
 ]
 
 const fadeUp = {
@@ -206,6 +206,10 @@ type IdleWindow = Window &
 function App() {
   const shouldReduceMotion = useReducedMotion()
   const transition = shouldReduceMotion ? instant : spring
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  }, [])
 
   return (
     <>
@@ -448,7 +452,7 @@ function Hero({
                 View Projects
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ButtonLink>
-              <ButtonLink href="mailto:manijit070@gmail.com" variant="secondary">
+              <ButtonLink href="https://mail.google.com/mail/?view=cm&fs=1&to=manijit070@gmail.com" variant="secondary" external>
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Me
               </ButtonLink>
@@ -928,7 +932,7 @@ function Contact() {
           meaningful with AI, automation, and modern web technology.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <ButtonLink href="mailto:manijit070@gmail.com" variant="primary">
+          <ButtonLink href="https://mail.google.com/mail/?view=cm&fs=1&to=manijit070@gmail.com" variant="primary" external>
             <Mail className="mr-2 h-4 w-4" />
             Get in Touch
           </ButtonLink>
