@@ -540,17 +540,18 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
          {projects.map((project, index) => (
            <motion.div
              key={project.title}
+             layoutId={`project-${project.title}`}
              initial={{ y: 0 }}
              animate={{ y: [0, -10, 0] }}
              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.2 }}
              onMouseEnter={() => setHoveredProject(project)}
-             onMouseLeave={() => setHoveredProject(null)}
-             className="relative bg-background/60 border border-border/40 backdrop-blur-xl rounded-2xl p-5 shadow-lg cursor-pointer hover:border-primary/50 transition-colors group flex flex-col justify-between overflow-hidden"
+             style={{ opacity: hoveredProject?.title === project.title ? 0 : 1 }}
+             className="relative bg-background/60 border border-border/40 backdrop-blur-xl rounded-2xl p-5 shadow-lg cursor-pointer hover:border-primary/50 transition-colors group flex flex-col justify-between overflow-hidden h-[180px]"
            >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 transition-opacity" />
               <div>
-                <h3 className="text-lg font-bold z-10 relative mb-2">{project.title}</h3>
-                <p className="text-xs text-muted-foreground z-10 relative line-clamp-2 mb-4">{project.description}</p>
+                <motion.h3 layoutId={`title-${project.title}`} className="text-lg font-bold z-10 relative mb-2">{project.title}</motion.h3>
+                <motion.p layoutId={`desc-${project.title}`} className="text-xs text-muted-foreground z-10 relative line-clamp-2 mb-4">{project.description}</motion.p>
               </div>
               <div className="flex gap-1 flex-wrap z-10 relative mt-auto">
                  {project.tags.slice(0, 2).map(tag => (
@@ -561,39 +562,63 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
          ))}
       </div>
 
-      {/* The Live Preview "Video" Glassmorphism Overlay */}
+      {/* The Morphing Expanded Screen */}
       <AnimatePresence>
-        {hoveredProject && previews[hoveredProject.title] && (
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.95, y: 20 }}
-             animate={{ opacity: 1, scale: 1, y: 0 }}
-             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-             transition={{ duration: 0.3 }}
-             className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4"
-           >
-              {/* Glassmorphic Container */}
-              <div className="w-full max-w-5xl aspect-video bg-background/20 backdrop-blur-3xl border border-white/20 rounded-[2rem] shadow-2xl shadow-black/50 overflow-hidden relative flex flex-col">
-                 <div className="h-10 bg-black/40 border-b border-white/10 flex items-center px-4 gap-2 shrink-0">
-                    <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                    <div className="mx-auto px-4 py-1 rounded-md bg-black/40 text-[10px] text-white/70 font-mono flex items-center gap-2">
-                       {hoveredProject.title} <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> Live Preview
+        {hoveredProject && (
+           <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none p-4 md:p-8">
+              {/* Deep Blur Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 bg-background/80 backdrop-blur-[24px] pointer-events-auto"
+                onMouseEnter={() => setHoveredProject(null)}
+              />
+              
+              {/* Massive Cinematic Screen */}
+              <motion.div 
+                 layoutId={`project-${hoveredProject.title}`}
+                 transition={{ type: "spring", bounce: 0.15, duration: 0.7 }}
+                 className="w-full max-w-6xl aspect-[4/3] md:aspect-[21/9] bg-black border border-white/10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden relative flex flex-col pointer-events-auto"
+                 onMouseLeave={() => setHoveredProject(null)}
+              >
+                 {/* Dark cinematic gradient overlay over the image */}
+                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+                 
+                 {/* Project Info Morphing inside the massive card */}
+                 <div className="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                      <motion.h3 layoutId={`title-${hoveredProject.title}`} className="text-4xl md:text-5xl font-bold text-white mb-4">{hoveredProject.title}</motion.h3>
+                      <motion.p layoutId={`desc-${hoveredProject.title}`} className="text-white/80 max-w-2xl text-lg">{hoveredProject.description}</motion.p>
                     </div>
+                    {hoveredProject.href && (
+                      <motion.a 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        href={hoveredProject.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-bold hover:bg-white/90 transition-colors shrink-0"
+                      >
+                         Visit Site <ExternalLink className="w-5 h-5" />
+                      </motion.a>
+                    )}
                  </div>
-                 <div className="relative flex-1 overflow-hidden bg-black/50">
-                    {/* Scrolling Image */}
-                    <motion.div
-                       className="w-full absolute top-0 left-0"
-                       initial={{ y: "0%" }}
-                       animate={{ y: "-50%" }}
-                       transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
-                    >
-                       <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover" />
-                    </motion.div>
-                 </div>
-              </div>
-           </motion.div>
+
+                 {/* The Scrolling "Video" (Only if preview exists) */}
+                 {previews[hoveredProject.title] ? (
+                   <motion.div
+                      className="absolute inset-0 w-full h-[300%] pointer-events-none"
+                      initial={{ y: "0%" }}
+                      animate={{ y: "-50%" }}
+                      transition={{ duration: 20, ease: "linear", repeat: Infinity, repeatType: "mirror" }}
+                   >
+                      <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover opacity-80" />
+                   </motion.div>
+                 ) : (
+                    <div className="absolute inset-0 w-full h-full pointer-events-none bg-gradient-to-br from-primary/20 to-black/80" />
+                 )}
+              </motion.div>
+           </div>
         )}
       </AnimatePresence>
     </div>
