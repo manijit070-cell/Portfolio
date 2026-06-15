@@ -624,7 +624,7 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
                         className="absolute inset-0 w-full h-[300%] pointer-events-none"
                         initial={{ y: "0%" }}
                         animate={{ y: "-50%" }}
-                        transition={{ duration: 30, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
+                        transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
                      >
                         <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover opacity-80" />
                      </motion.div>
