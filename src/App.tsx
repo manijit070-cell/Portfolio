@@ -21,6 +21,9 @@ import {
   Rocket,
   Trophy,
   Zap,
+  Sun,
+  Moon,
+  MessageCircle,
 } from 'lucide-react'
 import {
   AnimatePresence,
@@ -189,6 +192,7 @@ const hackathons: Hackathon[] = [
 const socialLinks = [
   { label: 'GitHub', href: 'https://github.com/manijit070-cell', icon: GitBranch },
   { label: 'Email', href: 'https://mail.google.com/mail/?view=cm&fs=1&to=manijit070@gmail.com', icon: Mail },
+  { label: 'WhatsApp', href: 'https://wa.me/916280967201', icon: MessageCircle },
 ]
 
 const fadeUp = {
@@ -224,6 +228,33 @@ type IdleWindow = Window &
     cancelIdleCallback?: (handle: number) => void
   }
 
+function ThemeToggle() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+  )
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="fixed right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background/50 text-foreground shadow-sm backdrop-blur transition-all hover:bg-muted"
+      aria-label="Toggle theme"
+    >
+      {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+    </button>
+  )
+}
+
 function App() {
   const shouldReduceMotion = useReducedMotion()
   const transition = shouldReduceMotion ? instant : spring
@@ -234,6 +265,7 @@ function App() {
 
   return (
     <>
+      <ThemeToggle />
       <ScrollProgress />
       <main className="min-h-screen w-full overflow-hidden bg-background text-foreground">
         <Hero transition={transition} shouldReduceMotion={Boolean(shouldReduceMotion)} />
@@ -477,6 +509,10 @@ function Hero({
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Me
               </ButtonLink>
+              <ButtonLink href="https://wa.me/916280967201" variant="secondary" external>
+                <MessageCircle className="mr-2 h-4 w-4" />
+                WhatsApp
+              </ButtonLink>
             </motion.div>
 
             <motion.div variants={fadeUp} transition={transition} className="flex gap-4">
@@ -563,6 +599,12 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.2 }}
              onMouseEnter={() => setHoveredProject(project)}
              onMouseLeave={() => setHoveredProject(null)}
+             onClick={(e) => {
+               if (project.href) {
+                 e.preventDefault()
+                 window.open(project.href, '_blank', 'noopener,noreferrer')
+               }
+             }}
              className="relative bg-background/60 border border-border/40 backdrop-blur-xl rounded-2xl p-5 shadow-lg cursor-pointer hover:border-primary/50 transition-colors group flex flex-col justify-between overflow-hidden h-[180px]"
            >
               {/* Graphical Card Background */}
@@ -744,7 +786,11 @@ function ProjectDeckCard({ project, isActive }: { project: Project; isActive: bo
       rel="noreferrer"
       aria-label={`Open ${project.title}`}
       tabIndex={isActive ? undefined : -1}
-      className="block rounded-2xl focus-visible:outline-none"
+      onClick={(e) => {
+        e.preventDefault()
+        window.open(project.href, '_blank', 'noopener,noreferrer')
+      }}
+      className="block rounded-2xl focus-visible:outline-none cursor-pointer"
     >
       {card}
     </a>
@@ -929,7 +975,11 @@ function ProjectCard({ project }: { project: Project }) {
           target="_blank"
           rel="noreferrer"
           aria-label={`Open ${project.title}`}
-          className="block h-full rounded-xl focus-visible:outline-none"
+          onClick={(e) => {
+            e.preventDefault()
+            window.open(project.href, '_blank', 'noopener,noreferrer')
+          }}
+          className="block h-full rounded-xl focus-visible:outline-none cursor-pointer"
         >
           {card}
         </a>
@@ -1025,6 +1075,10 @@ function Contact() {
           <ButtonLink href="https://mail.google.com/mail/?view=cm&fs=1&to=manijit070@gmail.com" variant="primary" external>
             <Mail className="mr-2 h-4 w-4" />
             Get in Touch
+          </ButtonLink>
+          <ButtonLink href="https://wa.me/916280967201" variant="primary" external>
+            <MessageCircle className="mr-2 h-4 w-4" />
+            WhatsApp
           </ButtonLink>
           <ButtonLink href="https://github.com/manijit070-cell" variant="secondary" external>
             <GitBranch className="mr-2 h-4 w-4" />
