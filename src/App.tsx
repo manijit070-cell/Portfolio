@@ -46,7 +46,7 @@ import trPreview from '@/assets/previews/tr.png'
 
 const previews: Record<string, string> = {
   'Aurora Table Cafe': auroraPreview,
-  'Cafe Website': cafePreview,
+  'Velvet Bean Cafe': cafePreview,
   'TR Enterprises': trPreview,
 }
 
@@ -82,7 +82,7 @@ const projects: Project[] = [
     image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80',
   },
   {
-    title: 'Cafe Website',
+    title: 'Velvet Bean Cafe',
     description:
       'A modern cafe landing experience built for quick exploration, clear sections, and clean food-service presentation.',
     tags: ['Restaurant', 'Frontend', 'Vercel'],
@@ -624,7 +624,7 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
                         className="absolute inset-0 w-full h-[300%] pointer-events-none"
                         initial={{ y: "0%" }}
                         animate={{ y: "-50%" }}
-                        transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
+                        transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: "mirror", delay: 1.5, repeatDelay: 1.5 }}
                      >
                         <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover opacity-80" />
                      </motion.div>
