@@ -586,7 +586,7 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="absolute inset-0 bg-background/80 backdrop-blur-[24px] pointer-events-auto"
+                  className="absolute inset-0 bg-background/40 backdrop-blur-sm pointer-events-auto"
                   onMouseEnter={() => setHoveredProject(null)}
                 />
                 
@@ -594,17 +594,17 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
                 <motion.div 
                    layoutId={`project-${hoveredProject.title}`}
                    transition={{ type: "spring", bounce: 0.15, duration: 0.7 }}
-                   className="w-full max-w-6xl aspect-[4/3] md:aspect-[21/9] bg-black border border-white/10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden relative flex flex-col pointer-events-auto"
+                   className="w-full max-w-4xl aspect-[4/3] md:aspect-video bg-black border border-white/10 rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden relative flex flex-col pointer-events-auto"
                    onMouseLeave={() => setHoveredProject(null)}
                 >
                    {/* Dark cinematic gradient overlay over the image */}
                    <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
                    
                    {/* Project Info Morphing inside the massive card */}
-                   <div className="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full flex flex-col md:flex-row md:items-end justify-between gap-6">
+                   <div className="absolute bottom-0 left-0 p-6 md:p-8 z-20 w-full flex flex-col md:flex-row md:items-end justify-between gap-6">
                       <div>
-                        <motion.h3 layoutId={`title-${hoveredProject.title}`} className="text-4xl md:text-5xl font-bold text-white mb-4">{hoveredProject.title}</motion.h3>
-                        <motion.p layoutId={`desc-${hoveredProject.title}`} className="text-white/80 max-w-2xl text-lg">{hoveredProject.description}</motion.p>
+                        <motion.h3 layoutId={`title-${hoveredProject.title}`} className="text-3xl md:text-4xl font-bold text-white mb-3">{hoveredProject.title}</motion.h3>
+                        <motion.p layoutId={`desc-${hoveredProject.title}`} className="text-white/80 max-w-xl text-base">{hoveredProject.description}</motion.p>
                       </div>
                       {hoveredProject.href && (
                         <motion.a 
