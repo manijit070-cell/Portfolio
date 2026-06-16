@@ -621,10 +621,10 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
                    {/* The Scrolling "Video" (Only if preview exists) */}
                    {previews[hoveredProject.title] ? (
                      <motion.div
-                        className="absolute inset-0 w-full h-[300%] pointer-events-none"
-                        initial={{ y: "0%" }}
-                        animate={{ y: "-50%" }}
-                        transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: "mirror", delay: 1.5, repeatDelay: 1.5 }}
+                        className="absolute w-full pointer-events-none"
+                        initial={{ top: "0%", y: "0%" }}
+                        animate={{ top: "100%", y: "-100%" }}
+                        transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
                      >
                         <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover opacity-80" />
                      </motion.div>
