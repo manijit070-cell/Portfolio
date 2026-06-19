@@ -247,7 +247,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="fixed right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background/50 text-foreground shadow-sm backdrop-blur transition-all hover:bg-muted"
+      className="fixed right-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background/50 text-foreground shadow-sm backdrop-blur transition-all hover:scale-110 hover:bg-muted active:scale-95"
       aria-label="Toggle theme"
     >
       {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
@@ -296,9 +296,9 @@ function App() {
                 key={skill}
                 variants={fadeUp}
                 transition={transition}
-                whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.04 }}
-                whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-                className="rounded-full border border-border/80 bg-muted/40 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur-xl transition hover:border-primary/40 hover:bg-primary/10"
+                whileHover={shouldReduceMotion ? undefined : { y: -5, scale: 1.08 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+                className="rounded-full border border-border/80 bg-muted/40 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur-xl transition-all hover:border-primary/60 hover:bg-primary/15 hover:text-primary hover:shadow-lg hover:shadow-primary/20"
               >
                 {skill}
               </motion.span>
