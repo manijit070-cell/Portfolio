@@ -24,6 +24,9 @@ import {
   Sun,
   Moon,
   MessageCircle,
+  Check,
+  Loader2,
+  Send
 } from 'lucide-react'
 import {
   AnimatePresence,
@@ -1053,39 +1056,344 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
   )
 }
 
+
+const whatsappIntroHrefMani = "https://wa.me/916280967201?text=Hi%20Manijit!%20I'd%20like%20to%20discuss%20a%20project.";
+const web3FormsAccessKeyMani = '759c7d9e-a638-4f93-9277-c26499e40274'; // Re-using Jaskaran's key for testing
+
 function Contact() {
   const shouldReduceMotion = useReducedMotion()
+  const [formState, setFormState] = useState({ name: '', email: '', subject: 'Website Development', message: '' })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [formError, setFormError] = useState('')
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormState((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formState.name.trim() || !formState.email.trim() || !formState.message.trim()) {
+      setFormError('Please fill in all required fields.')
+      return
+    }
+    setFormError('')
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: web3FormsAccessKeyMani,
+          name: formState.name.trim(),
+          email: formState.email.trim(),
+          replyto: formState.email.trim(),
+          subject: `Portfolio message: ${formState.subject}`,
+          project_type: formState.subject,
+          message: formState.message.trim(),
+          botcheck: false,
+        }),
+      })
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Something went wrong. Please try again.')
+      }
+
+      setIsSubmitted(true)
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : 'Message failed to send. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
-    <section className="content-section bg-gradient-to-br from-primary/10 via-background to-background px-6 py-24">
+    <section className="content-section bg-gradient-to-br from-primary/5 via-background to-background px-6 py-24 relative overflow-hidden">
+      {/* Background glowing blur elements */}
+      <div className="pointer-events-none absolute -bottom-36 -right-36 h-96 w-96 rounded-full bg-[#25D366]/5 blur-[128px]" />
+      <div className="pointer-events-none absolute -top-36 -left-36 h-96 w-96 rounded-full bg-primary/5 blur-[128px]" />
+
       <motion.div
-        className="container mx-auto max-w-4xl text-center"
+        className="container mx-auto max-w-6xl relative z-10"
         initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
         whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-        transition={spring}
+        transition={{ duration: 0.5 }}
         viewport={{ once: true, margin: '-100px' }}
       >
-        <Badge icon={Zap}>Open to Opportunities</Badge>
-        <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">Let&apos;s Work Together</h2>
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Available for freelance projects, part-time roles, and exciting collaborations. Let&apos;s build something
-          meaningful with AI, automation, and modern web technology.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <ButtonLink href="https://mail.google.com/mail/?view=cm&fs=1&to=manijit070@gmail.com" variant="primary" external>
-            <Mail className="mr-2 h-4 w-4" />
-            Get in Touch
-          </ButtonLink>
-          <ButtonLink href="https://wa.me/916280967201" variant="primary" external>
-            <MessageCircle className="mr-2 h-4 w-4" />
-            WhatsApp
-          </ButtonLink>
-          <ButtonLink href="https://github.com/manijit070-cell" variant="secondary" external>
-            <GitBranch className="mr-2 h-4 w-4" />
-            View GitHub
-          </ButtonLink>
+        <div className="text-center mb-16">
+          <Badge icon={Zap}>Open to Opportunities</Badge>
+          <h2 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
+            Let&apos;s Build Something Great
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Have an idea, project, or role? Drop a message or reach out directly on WhatsApp. I usually reply within a few hours.
+          </p>
         </div>
-        <p className="mt-12 text-sm text-muted-foreground">&copy; 2026 Manijit Sau. All rights reserved.</p>
+
+        <div className="grid gap-8 lg:grid-cols-12 items-stretch text-left">
+          {/* Left Column: Direct Contacts */}
+          <div className="lg:col-span-5 flex flex-col justify-between gap-6">
+            <div className="space-y-6">
+              {/* WhatsApp Card */}
+              <motion.a
+                href={whatsappIntroHrefMani}
+                target="_blank"
+                rel="noreferrer"
+                whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
+                transition={{ duration: 0.2 }}
+                className="group block relative rounded-2xl border border-border/60 bg-muted/20 p-6 shadow-sm backdrop-blur-xl transition hover:border-[#25D366]/40 hover:bg-[#25D366]/5"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#25D366]/10 text-[#25D366] transition group-hover:bg-[#25D366]/20">
+                      <MessageCircle className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-[#25D366] transition">WhatsApp</h3>
+                      <p className="text-sm text-muted-foreground">+91 62809 67201</p>
+                    </div>
+                  </div>
+                  <span className="flex h-3.5 w-3.5 items-center justify-center relative">
+                    <span className="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-[#25D366] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#25D366]"></span>
+                  </span>
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Quickest way to chat. Ideal for instant questions, project scopes, or quick call coordination.
+                </p>
+                <div className="mt-4 flex items-center text-xs font-semibold text-[#25D366] opacity-0 group-hover:opacity-100 transition-opacity">
+                  Chat Now <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                </div>
+              </motion.a>
+
+              {/* Email Card */}
+              <motion.a
+                href="mailto:manijit070@gmail.com"
+                whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
+                transition={{ duration: 0.2 }}
+                className="group block relative rounded-2xl border border-border/60 bg-muted/20 p-6 shadow-sm backdrop-blur-xl transition hover:border-primary/40 hover:bg-primary/5"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/5 text-foreground transition group-hover:bg-primary/10">
+                      <Mail className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition">Email Address</h3>
+                      <p className="text-sm text-muted-foreground">manijit070@gmail.com</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  For formal requests, detailed RFPs, or job discussions. Checked daily.
+                </p>
+                <div className="mt-4 flex items-center text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  Send Email <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                </div>
+              </motion.a>
+
+              {/* GitHub Card */}
+              <motion.a
+                href="https://github.com/manijit070-cell"
+                target="_blank"
+                rel="noreferrer"
+                whileHover={shouldReduceMotion ? undefined : { y: -4, scale: 1.01 }}
+                transition={{ duration: 0.2 }}
+                className="group block relative rounded-2xl border border-border/60 bg-muted/20 p-6 shadow-sm backdrop-blur-xl transition hover:border-violet-500/40 hover:bg-violet-500/5"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 transition group-hover:bg-violet-500/20">
+                      <GitBranch className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-violet-400 transition">GitHub Profile</h3>
+                      <p className="text-sm text-muted-foreground">github.com/manijit070-cell</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Explore open source work, system experiments, and source codes directly.
+                </p>
+                <div className="mt-4 flex items-center text-xs font-semibold text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Explore Repos <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                </div>
+              </motion.a>
+            </div>
+
+            <p className="hidden lg:block text-xs text-muted-foreground mt-8">
+              &copy; 2026 Manijit Sau. All rights reserved. Made with precision and passion.
+            </p>
+          </div>
+
+          {/* Right Column: Custom Glassmorphic Form */}
+          <div className="lg:col-span-7">
+            <Card className="h-full border border-border/60 bg-muted/20 backdrop-blur-xl relative overflow-hidden flex flex-col justify-center">
+              <AnimatePresence mode="wait">
+                {!isSubmitted ? (
+                  <motion.form
+                    key="contact-form"
+                    onSubmit={handleSubmit}
+                    className="p-8 space-y-6 flex flex-col h-full justify-between"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold tracking-tight text-foreground">Send a Direct Message</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Fill in details below and your message will come straight to my inbox.
+                      </p>
+
+                      {formError && (
+                        <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-500 border border-red-500/20">
+                          {formError}
+                        </div>
+                      )}
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-1.5 text-left">
+                          <label htmlFor="name" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                            Your Name *
+                          </label>
+                          <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
+                            value={formState.name}
+                            onChange={handleInputChange}
+                            placeholder="John Doe"
+                            className="w-full rounded-lg border border-border/60 bg-background/50 px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-primary focus:bg-background/80"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5 text-left">
+                          <label htmlFor="email" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                            Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            value={formState.email}
+                            onChange={handleInputChange}
+                            placeholder="john@example.com"
+                            className="w-full rounded-lg border border-border/60 bg-background/50 px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-primary focus:bg-background/80"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-left">
+                        <label htmlFor="subject" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                          Project/Subject *
+                        </label>
+                        <select
+                          id="subject"
+                          name="subject"
+                          value={formState.subject}
+                          onChange={handleInputChange}
+                          className="w-full rounded-lg border border-border/60 bg-background/50 px-4 py-2.5 text-sm text-foreground outline-none transition focus:border-primary focus:bg-background/80 appearance-none cursor-pointer"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M19 9l-7 7-7-7' stroke-linecap='round' stroke-linejoin='round'></path></svg>")`,
+                            backgroundPosition: 'right 1rem center',
+                            backgroundSize: '1em',
+                            backgroundRepeat: 'no-repeat',
+                          }}
+                        >
+                          <option value="Website Development" className="bg-background">Website Development</option>
+                          <option value="Website Redesign" className="bg-background">Website Redesign</option>
+                          <option value="E-Commerce Site" className="bg-background">E-Commerce Site</option>
+                          <option value="Landing Page" className="bg-background">Landing Page</option>
+                          <option value="Website Maintenance" className="bg-background">Website Maintenance</option>
+                          <option value="General Inquiry" className="bg-background">General Inquiry</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5 text-left">
+                        <label htmlFor="message" className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                          Message *
+                        </label>
+                        <textarea
+                          id="message"
+                          name="message"
+                          required
+                          value={formState.message}
+                          onChange={handleInputChange}
+                          rows={4}
+                          placeholder="Tell me about your project, goals, or schedule..."
+                          className="w-full rounded-lg border border-border/60 bg-background/50 px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none transition focus:border-primary focus:bg-background/80 resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="mt-6 w-full flex items-center justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending Message...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          Send Message
+                        </>
+                      )}
+                    </button>
+                  </motion.form>
+                ) : (
+                  <motion.div
+                    key="success-card"
+                    className="p-8 text-center flex flex-col items-center justify-center h-full min-h-[380px] space-y-6"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 shadow-inner">
+                      <Check className="h-8 w-8" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold tracking-tight text-foreground">Message Sent Successfully!</h3>
+                      <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                        Thank you for reaching out, {formState.name}! I have received your request regarding a <strong>{formState.subject}</strong> project.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-border/60 bg-background/40 p-4 max-w-md w-full text-left text-xs text-muted-foreground leading-relaxed">
+                      <strong>Your message summary:</strong>
+                      <p className="mt-1 line-clamp-3 italic text-foreground/80">&ldquo;{formState.message}&rdquo;</p>
+                    </div>
+                      <button
+                        onClick={() => {
+                          setIsSubmitted(false)
+                          setFormState({ name: '', email: '', subject: 'Website Development', message: '' })
+                        }}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-4 text-xs font-semibold text-foreground shadow-sm hover:bg-muted transition cursor-pointer"
+                    >
+                      Send Another Message
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Card>
+          </div>
+        </div>
+
+        <p className="lg:hidden text-center text-xs text-muted-foreground mt-12">
+          &copy; 2026 Manijit Sau. All rights reserved. Made with precision and passion.
+        </p>
       </motion.div>
     </section>
   )
