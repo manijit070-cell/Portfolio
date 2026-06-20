@@ -1058,7 +1058,7 @@ function HackathonCard({ hackathon }: { hackathon: Hackathon }) {
 
 
 const whatsappIntroHrefMani = "https://wa.me/916280967201?text=Hi%20Manijit!%20I'd%20like%20to%20discuss%20a%20project.";
-const web3FormsAccessKeyMani = '759c7d9e-a638-4f93-9277-c26499e40274'; // Re-using Jaskaran's key for testing
+const web3FormsAccessKeyMani = '7b3342aa-8f0c-410f-8dc4-2bdece2c993e'; // Manijit's Web3Forms Key
 
 function Contact() {
   const shouldReduceMotion = useReducedMotion()
