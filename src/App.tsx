@@ -491,9 +491,9 @@ function Hero({
                   Manijit Sau
                 </motion.span>
               </motion.h1>
-              <motion.p variants={fadeUp} transition={transition} className="text-xl font-light text-muted-foreground sm:text-2xl md:text-3xl">
-                AI Developer & Creative Technologist
-              </motion.p>
+                <motion.p variants={fadeUp} transition={transition} className="text-xl font-light text-muted-foreground sm:text-2xl md:text-3xl">
+                  Web Developer & Creative Technologist
+                </motion.p>
               <motion.p variants={fadeUp} transition={transition} className="max-w-xl text-lg leading-relaxed text-muted-foreground">
                 B.Tech Information Technology student, freelancer, and AI builder crafting practical
                 digital experiences with modern web technologies and intelligent automation.
