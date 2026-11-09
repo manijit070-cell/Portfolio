@@ -10,6 +10,7 @@ import {
 } from 'react'
 import {
   ArrowRight,
+  ArrowUpRight,
   Award,
   Briefcase,
   ChevronLeft,
@@ -17,8 +18,10 @@ import {
   CodeXml,
   ExternalLink,
   GitBranch,
+  Globe,
   Mail,
   Rocket,
+  Sparkles,
   Trophy,
   Zap,
   Sun,
@@ -49,11 +52,23 @@ import { SplineScene } from '@/components/ui/splite'
 import auroraPreview from '@/assets/previews/aurora.png'
 import cafePreview from '@/assets/previews/cafe.png'
 import trPreview from '@/assets/previews/tr.png'
+import pinkfarmPreview from '@/assets/previews/pinkfarm.png'
+import productivexPreview from '@/assets/previews/productivex.png'
 
 const previews: Record<string, string> = {
+  'Pink Farm': pinkfarmPreview,
+  'ProductiveX': productivexPreview,
   'Aurora Table Cafe': auroraPreview,
   'Velvet Bean Cafe': cafePreview,
   'TR Enterprises': trPreview,
+}
+
+const previewDurations: Record<string, number> = {
+  'Pink Farm': 26, // 7926px long-form e-commerce storefront (smooth, readable pace)
+  'Velvet Bean Cafe': 19, // 4787px cafe landing experience
+  'Aurora Table Cafe': 17, // 3945px cafe website
+  'TR Enterprises': 15, // 3533px business website
+  'ProductiveX': 26, // 7890px full SaaS mobile workspace & dashboard
 }
 
 type Project = {
@@ -79,6 +94,22 @@ type Hackathon = {
 }
 
 const projects: Project[] = [
+  {
+    title: 'Pink Farm',
+    description:
+      'Full-stack organic lifestyle storefront with Next.js App Router, MongoDB, Prisma ORM, Brevo OTP auth, and Razorpay checkout.',
+    tags: ['Next.js', 'Prisma', 'MongoDB', 'Razorpay', 'Vercel'],
+    href: 'https://www.pinkfarm.in/',
+    image: pinkfarmPreview,
+  },
+  {
+    title: 'ProductiveX',
+    description:
+      'All-in-one SaaS productivity workspace featuring the Sage AI voice assistant, drag-and-drop Kanban, expense & habit tracking.',
+    tags: ['AI Voice', 'SaaS', 'Node.js', 'MongoDB', 'Vercel'],
+    href: 'https://productive-x-theta.vercel.app/',
+    image: productivexPreview,
+  },
   {
     title: 'Aurora Table Cafe',
     description:
@@ -111,18 +142,11 @@ const projects: Project[] = [
     image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80',
   },
   {
-    title: 'AI-Based Development Projects',
+    title: 'AI Automation Workflows',
     description:
-      'Multiple AI-powered applications and automation tools built to solve real workflow problems and improve productivity.',
+      'Multiple AI-powered applications, intelligent agents, and custom automation tools engineered to solve workflow bottlenecks.',
     tags: ['Prompting', 'Tools', 'Systems'],
     image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&q=80',
-  },
-  {
-    title: 'Responsive Web Projects',
-    description:
-      'Modern responsive websites using HTML, CSS, and JavaScript with a focus on usability, speed, and clean interfaces.',
-    tags: ['HTML5', 'CSS3', 'JavaScript'],
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
   },
   {
     title: 'Freelance Client Builds',
@@ -134,11 +158,17 @@ const projects: Project[] = [
 ]
 
 const skills = [
+  'Next.js',
+  'React',
+  'TypeScript',
+  'JavaScript',
+  'Node.js',
+  'MongoDB',
+  'Prisma ORM',
+  'Tailwind CSS',
+  'REST APIs',
   'C++',
   'Python',
-  'JavaScript',
-  'HTML5',
-  'CSS3',
   'MySQL',
   'Responsive Design',
   'Frontend Development',
@@ -147,10 +177,8 @@ const skills = [
   'Plugin-Based Systems',
   'Automation Systems',
   'Git & GitHub',
-  'VS Code',
   'Vercel',
   'Figma',
-  'Codex',
 ]
 
 const experiences: Experience[] = [
@@ -276,7 +304,7 @@ function App() {
         <Section
           eyebrow="Featured Work"
           title="Projects"
-          description="A selection of my recent work showcasing AI systems, web development, and real-world delivery."
+          description="Explore production-grade e-commerce platforms, AI voice-enabled SaaS applications, and sleek interactive web experiences."
           muted
         >
           <ProjectShowcase transition={transition} />
@@ -571,232 +599,178 @@ function Hero({
 }
 
 function ProjectShowcase({ transition }: { transition: Transition }) {
-  const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
+  const [hoveredProject, setHoveredProject] = useState<Project | null>(null)
 
   // Mouse tracking for the portal
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springConfig = { damping: 25, stiffness: 250, mass: 0.5 };
-  const smoothX = useSpring(mouseX, springConfig);
-  const smoothY = useSpring(mouseY, springConfig);
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springConfig = { damping: 25, stiffness: 250, mass: 0.5 }
+  const smoothX = useSpring(mouseX, springConfig)
+  const smoothY = useSpring(mouseY, springConfig)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Offset the portal to the bottom-right of the cursor
-      mouseX.set(e.clientX + 24);
-      mouseY.set(e.clientY + 24);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+      // Smart screen boundary detection for portal positioning
+      const portalWidth = Math.min(340, Math.max(260, window.innerWidth * 0.22))
+      const portalHeight = portalWidth * 1.25
+
+      let x = e.clientX + 24
+      let y = e.clientY + 24
+
+      if (x + portalWidth > window.innerWidth - 16) {
+        x = e.clientX - portalWidth - 24
+      }
+      if (y + portalHeight > window.innerHeight - 16) {
+        y = e.clientY - portalHeight - 24
+      }
+
+      x = Math.max(16, x)
+      y = Math.max(16, y)
+
+      mouseX.set(x)
+      mouseY.set(y)
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [mouseX, mouseY])
 
   return (
-    <div className="relative py-12 min-h-[60vh] flex items-center justify-center">
-      {/* Floating Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-7xl mx-auto w-full z-10 relative">
-         {projects.map((project, index) => (
-           <motion.div
-             key={project.title}
-             initial={{ y: 0 }}
-             animate={{ y: [0, -10, 0] }}
-             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: index * 0.2 }}
-             onMouseEnter={() => setHoveredProject(project)}
-             onMouseLeave={() => setHoveredProject(null)}
-             onClick={(e) => {
-               if (project.href) {
-                 e.preventDefault()
-                 window.open(project.href, '_blank', 'noopener,noreferrer')
-               }
-             }}
-             className="relative bg-background/60 border border-border/40 backdrop-blur-xl rounded-2xl p-5 shadow-lg cursor-pointer hover:border-primary/50 transition-colors group flex flex-col justify-between overflow-hidden h-[180px]"
-           >
-              {/* Graphical Card Background */}
-              <div className="absolute inset-0 z-0">
-                 {previews[project.title] || project.image ? (
-                   <img src={previews[project.title] || project.image} alt="" className="w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-                 ) : null}
-                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
+    <div className="relative py-8 min-h-[50vh] flex items-center justify-center">
+      {/* Floating Glass Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 max-w-7xl mx-auto w-full z-10 relative">
+        {projects.map((project, index) => (
+          <motion.div
+            key={project.title}
+            initial={{ y: 0 }}
+            animate={{ y: [0, -8, 0] }}
+            transition={{
+              duration: 4.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: (index % 4) * 0.25,
+            }}
+            whileHover={{ y: -6, scale: 1.02 }}
+            onMouseEnter={() => setHoveredProject(project)}
+            onMouseLeave={() => setHoveredProject(null)}
+            onClick={(e) => {
+              if (project.href) {
+                e.preventDefault()
+                window.open(project.href, '_blank', 'noopener,noreferrer')
+              }
+            }}
+            className="relative bg-background/60 border border-border/50 backdrop-blur-xl rounded-2xl p-5 shadow-lg cursor-pointer hover:border-primary/60 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group flex flex-col justify-between overflow-hidden h-[195px]"
+          >
+            {/* Graphical Card Background */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {previews[project.title] || project.image ? (
+                <img
+                  src={previews[project.title] || project.image}
+                  alt=""
+                  className="w-full h-full object-cover object-top opacity-20 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700 ease-out"
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/30" />
+            </div>
+
+            <div className="z-10 relative">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors">
+                  {project.title}
+                </h3>
+                {project.href ? (
+                  <ExternalLink className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all flex-shrink-0 mt-0.5" />
+                ) : null}
               </div>
-              
-              <div className="z-10 relative">
-                <h3 className="text-lg font-bold mb-2">{project.title}</h3>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-4">{project.description}</p>
-              </div>
-              <div className="flex gap-1 flex-wrap z-10 relative mt-auto">
-                 {project.tags.slice(0, 2).map(tag => (
-                   <span key={tag} className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary border border-primary/30 rounded-full">{tag}</span>
-                 ))}
-              </div>
-           </motion.div>
-         ))}
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                {project.description}
+              </p>
+            </div>
+
+            <div className="flex gap-1.5 flex-wrap z-10 relative mt-auto pt-2">
+              {project.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] px-2.5 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded-full font-medium"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* The Cursor-Following Video Portal */}
       <AnimatePresence>
         {hoveredProject && previews[hoveredProject.title] && (
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.8 }}
-             animate={{ opacity: 1, scale: 1 }}
-             exit={{ opacity: 0, scale: 0.8 }}
-             transition={{ duration: 0.2 }}
-             style={{
-                position: "fixed",
-                left: 0,
-                top: 0,
-                x: smoothX,
-                y: smoothY,
-                zIndex: 100,
-                pointerEvents: "none"
-             }}
-             className="w-[20vw] min-w-[250px] max-w-[350px] aspect-[4/5] bg-black border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
-           >
-              {/* The Scrolling "Video" */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: 'fixed',
+              left: 0,
+              top: 0,
+              x: smoothX,
+              y: smoothY,
+              zIndex: 100,
+              pointerEvents: 'none',
+            }}
+            className="w-[20vw] min-w-[260px] max-w-[340px] aspect-[4/5] bg-black/95 border border-white/20 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-2xl"
+          >
+            {/* Sleek mini window bar */}
+            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-mono text-white/70 select-none">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className="h-2 w-2 rounded-full bg-red-500/70" />
+                  <span className="h-2 w-2 rounded-full bg-amber-500/70" />
+                  <span className="h-2 w-2 rounded-full bg-emerald-500/70" />
+                </div>
+                <span className="truncate max-w-[130px] font-medium text-white/90 text-[10.5px]">
+                  {hoveredProject.title}
+                </span>
+              </div>
+              <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold flex-shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Preview
+              </span>
+            </div>
+
+            {/* The Scrolling "Video" Portal */}
+            <div className="relative h-[calc(100%-29px)] w-full overflow-hidden bg-black/40">
               <motion.div
-                 className="absolute w-full pointer-events-none"
-                 initial={{ top: "0%", y: "0%" }}
-                 animate={{ top: "100%", y: "-100%" }}
-                 transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
+                key={hoveredProject.title}
+                className="absolute w-full pointer-events-none"
+                style={{ willChange: 'transform, top' }}
+                initial={{ top: '0%', y: '0%' }}
+                animate={{
+                  top: ['0%', '0%', '100%', '100%', '0%'],
+                  y: ['0%', '0%', '-100%', '-100%', '0%'],
+                }}
+                transition={{
+                  duration: previewDurations[hoveredProject.title] || 16,
+                  times: [0, 0.08, 0.50, 0.58, 1],
+                  ease: 'easeInOut',
+                  repeat: Infinity,
+                }}
               >
-                 <img src={previews[hoveredProject.title]} alt="" className="w-full h-auto object-cover opacity-90" />
+                <img
+                  src={previews[hoveredProject.title]}
+                  alt={hoveredProject.title}
+                  className="w-full h-auto object-cover opacity-95 block"
+                  loading="eager"
+                  decoding="async"
+                />
               </motion.div>
-           </motion.div>
+              {/* Subtle top & bottom gloss vignette to give realistic device viewport feel */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/50 to-transparent z-10" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-black/70 to-transparent z-10" />
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
-}
-
-function ProjectShuffleDeck() {
-  const shouldReduceMotion = useReducedMotion()
-  const [activeIndex, setActiveIndex] = useState(0)
-  const totalProjects = projects.length
-  const visibleProjects = [0, 1, 2].map((offset) => ({
-    project: projects[(activeIndex + offset) % totalProjects],
-    offset,
-  }))
-
-  const showPrevious = useCallback(() => {
-    setActiveIndex((current) => (current - 1 + totalProjects) % totalProjects)
-  }, [totalProjects])
-
-  const showNext = useCallback(() => {
-    setActiveIndex((current) => (current + 1) % totalProjects)
-  }, [totalProjects])
-
-  return (
-    <div className="md:hidden">
-      <div className="relative mx-auto h-[360px] max-w-sm" style={deckPerspectiveStyle}>
-        {visibleProjects.map(({ project, offset }) => {
-          const isActive = offset === 0
-          const depth = [
-            { y: 0, scale: 1, rotate: 0, opacity: 1 },
-            { y: 24, scale: 0.94, rotate: -4, opacity: 0.62 },
-            { y: 48, scale: 0.88, rotate: 4, opacity: 0.34 },
-          ][offset]
-
-          return (
-            <motion.div
-              key={project.title}
-              className={`absolute inset-x-0 top-0 ${isActive ? 'z-30' : offset === 1 ? 'z-20' : 'z-10'} ${
-                isActive ? '' : 'pointer-events-none'
-              }`}
-              aria-hidden={!isActive}
-              initial={shouldReduceMotion ? false : { y: 42, scale: 0.9, rotate: 6, opacity: 0 }}
-              animate={shouldReduceMotion ? { opacity: isActive ? 1 : 0.35 } : depth}
-              transition={shouldReduceMotion ? instant : deckSpring}
-              style={{ willChange: shouldReduceMotion ? 'auto' : 'transform, opacity' }}
-            >
-              <ProjectDeckCard project={project} isActive={isActive} />
-            </motion.div>
-          )
-        })}
-      </div>
-
-      <div className="mx-auto mt-5 flex max-w-sm items-center justify-between gap-4">
-        <motion.button
-          type="button"
-          aria-label="Previous project"
-          onClick={showPrevious}
-          whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background/70 text-foreground shadow-sm backdrop-blur transition hover:border-primary/50"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </motion.button>
-
-        <div className="flex items-center gap-2" aria-label={`Project ${activeIndex + 1} of ${totalProjects}`}>
-          {projects.map((project, index) => (
-            <button
-              key={project.title}
-              type="button"
-              aria-label={`Show ${project.title}`}
-              onClick={() => setActiveIndex(index)}
-              className={`h-2.5 rounded-full transition-all ${
-                index === activeIndex ? 'w-8 bg-primary' : 'w-2.5 bg-muted-foreground/35'
-              }`}
-            />
-          ))}
-        </div>
-
-        <motion.button
-          type="button"
-          aria-label="Next project"
-          onClick={showNext}
-          whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background/70 text-foreground shadow-sm backdrop-blur transition hover:border-primary/50"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </motion.button>
-      </div>
-    </div>
-  )
-}
-
-function ProjectDeckCard({ project, isActive }: { project: Project; isActive: boolean }) {
-  const card = (
-    <Card className="min-h-[320px] rounded-2xl border-border/60 bg-background/80 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
-      <div className="flex h-full flex-col justify-between gap-6">
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-              <CodeXml className="h-6 w-6" />
-            </div>
-            {project.href ? <ExternalLink className="h-5 w-5 text-muted-foreground" /> : null}
-          </div>
-          <div className="space-y-3">
-            <h3 className="text-2xl font-bold tracking-tight">{project.title}</h3>
-            <p className="text-sm leading-6 text-muted-foreground">{project.description}</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span key={tag} className="rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </Card>
-  )
-
-  if (!project.href) {
-    return card
-  }
-
-  return (
-    <a
-      href={project.href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={`Open ${project.title}`}
-      tabIndex={isActive ? undefined : -1}
-      onClick={(e) => {
-        e.preventDefault()
-        window.open(project.href, '_blank', 'noopener,noreferrer')
-      }}
-      className="block rounded-2xl focus-visible:outline-none cursor-pointer"
-    >
-      {card}
-    </a>
   )
 }
 
@@ -842,154 +816,6 @@ function Section({
         {children}
       </div>
     </section>
-  )
-}
-
-function ProjectCard({ project }: { project: Project }) {
-  const shouldReduceMotion = useReducedMotion()
-  const boundsRef = useRef<DOMRect | null>(null)
-  const pointerStateRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null)
-  const frameRef = useRef<number | null>(null)
-  const tiltX = useMotionValue(0)
-  const tiltY = useMotionValue(0)
-  const glowX = useMotionValue(0)
-  const glowY = useMotionValue(0)
-  const smoothTiltX = useSpring(tiltX, tiltSpring)
-  const smoothTiltY = useSpring(tiltY, tiltSpring)
-  const rotateX = useTransform(smoothTiltY, [-0.5, 0.5], [8, -8])
-  const rotateY = useTransform(smoothTiltX, [-0.5, 0.5], [-8, 8])
-  const glowBackground = useMotionTemplate`radial-gradient(420px circle at ${glowX}px ${glowY}px, rgba(255,255,255,0.18), transparent 42%)`
-
-  const flushPointerFrame = useCallback(() => {
-    const pointer = pointerStateRef.current
-    frameRef.current = null
-
-    if (!pointer) {
-      return
-    }
-
-    glowX.set(pointer.x)
-    glowY.set(pointer.y)
-    tiltX.set(pointer.x / pointer.width - 0.5)
-    tiltY.set(pointer.y / pointer.height - 0.5)
-  }, [glowX, glowY, tiltX, tiltY])
-
-  useEffect(() => {
-    return () => {
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current)
-      }
-    }
-  }, [])
-
-  const handlePointerEnter = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    boundsRef.current = event.currentTarget.getBoundingClientRect()
-  }, [])
-
-  const handlePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    if (shouldReduceMotion) {
-      return
-    }
-
-    const bounds = boundsRef.current ?? event.currentTarget.getBoundingClientRect()
-    const x = event.clientX - bounds.left
-    const y = event.clientY - bounds.top
-
-    pointerStateRef.current = {
-      x,
-      y,
-      width: Math.max(bounds.width, 1),
-      height: Math.max(bounds.height, 1),
-    }
-
-    if (frameRef.current === null) {
-      frameRef.current = window.requestAnimationFrame(flushPointerFrame)
-    }
-  }, [flushPointerFrame, shouldReduceMotion])
-
-  const handlePointerLeave = useCallback(() => {
-    boundsRef.current = null
-    pointerStateRef.current = null
-
-    if (frameRef.current !== null) {
-      window.cancelAnimationFrame(frameRef.current)
-      frameRef.current = null
-    }
-
-    tiltX.set(0)
-    tiltY.set(0)
-  }, [tiltX, tiltY])
-
-  const card = (
-    <Card className="relative h-full overflow-hidden rounded-xl border-border/50 bg-background/50 p-6 shadow-sm backdrop-blur-xl transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-2xl group-hover:shadow-white/10">
-      <motion.div className="pointer-events-none absolute inset-0" variants={cardGlow} style={{ background: glowBackground }} />
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent"
-        variants={cardGlow}
-      />
-      <div className="relative z-10 space-y-4 [transform:translateZ(26px)]">
-        <div className="flex items-start justify-between">
-          <motion.div variants={cardGlow}>
-            <CodeXml className="h-8 w-8 text-primary" />
-          </motion.div>
-          {project.href ? (
-            <motion.div variants={{ rest: { x: 0, y: 0 }, hover: { x: 4, y: -4 } }} transition={snappySpring}>
-              <ExternalLink className="h-5 w-5 text-muted-foreground transition group-hover:text-primary" />
-            </motion.div>
-          ) : null}
-        </div>
-        <h3 className="text-xl font-semibold">{project.title}</h3>
-        <p className="leading-relaxed text-muted-foreground">{project.description}</p>
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <motion.span
-              key={tag}
-              variants={{ rest: { y: 0 }, hover: { y: -2 } }}
-              transition={snappySpring}
-              className="rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
-            >
-              {tag}
-            </motion.span>
-          ))}
-        </div>
-      </div>
-    </Card>
-  )
-
-  return (
-    <motion.div
-      className="group h-full [perspective:1000px]"
-      initial="rest"
-      whileHover="hover"
-      onPointerEnter={handlePointerEnter}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      style={{
-        rotateX: shouldReduceMotion ? 0 : rotateX,
-        rotateY: shouldReduceMotion ? 0 : rotateY,
-        transformStyle: 'preserve-3d',
-        willChange: shouldReduceMotion ? 'auto' : 'transform',
-      }}
-      transition={snappySpring}
-    >
-      {project.href ? (
-        <a
-          href={project.href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Open ${project.title}`}
-          onClick={(e) => {
-            e.preventDefault()
-            window.open(project.href, '_blank', 'noopener,noreferrer')
-          }}
-          className="block h-full rounded-xl focus-visible:outline-none cursor-pointer"
-        >
-          {card}
-        </a>
-      ) : (
-        card
-      )}
-    </motion.div>
   )
 }
 
