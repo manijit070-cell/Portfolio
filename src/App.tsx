@@ -717,15 +717,15 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
               zIndex: 100,
               pointerEvents: 'none',
             }}
-            className="w-[20vw] min-w-[260px] max-w-[340px] aspect-[4/5] bg-black/95 border border-white/20 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-2xl"
+            className="w-[20vw] min-w-[260px] max-w-[340px] aspect-[4/5] bg-[#0a0d14] border border-white/15 rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden"
           >
             {/* Sleek mini window bar */}
-            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] font-mono text-white/70 select-none">
+            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-mono text-white/70 select-none">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="h-2 w-2 rounded-full bg-red-500/70" />
-                  <span className="h-2 w-2 rounded-full bg-amber-500/70" />
-                  <span className="h-2 w-2 rounded-full bg-emerald-500/70" />
+                  <span className="h-2 w-2 rounded-full bg-red-500/80" />
+                  <span className="h-2 w-2 rounded-full bg-amber-500/80" />
+                  <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
                 </div>
                 <span className="truncate max-w-[130px] font-medium text-white/90 text-[10.5px]">
                   {hoveredProject.title}
@@ -738,7 +738,7 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
             </div>
 
             {/* The Scrolling "Video" Portal */}
-            <div className="relative h-[calc(100%-29px)] w-full overflow-hidden bg-black/40">
+            <div className="relative h-[calc(100%-29px)] w-full overflow-hidden bg-[#0a0d14]">
               <motion.div
                 key={hoveredProject.title}
                 className="absolute w-full pointer-events-none"
@@ -758,14 +758,11 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
                 <img
                   src={previews[hoveredProject.title]}
                   alt={hoveredProject.title}
-                  className="w-full h-auto object-cover opacity-95 block"
+                  className="w-full h-auto object-cover opacity-100 block"
                   loading="eager"
                   decoding="async"
                 />
               </motion.div>
-              {/* Subtle top & bottom gloss vignette to give realistic device viewport feel */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/50 to-transparent z-10" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-black/70 to-transparent z-10" />
             </div>
           </motion.div>
         )}
