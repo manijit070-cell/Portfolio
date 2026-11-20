@@ -397,40 +397,15 @@ function useResponsiveSplineReady() {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    const win = window as IdleWindow
-    let timer: number | undefined
-    let idleId: number | undefined
-
-    const cancelPending = () => {
-      window.clearTimeout(timer)
-
-      if (idleId !== undefined) {
-        win.cancelIdleCallback?.(idleId)
-        idleId = undefined
-      }
+    // Eagerly load on desktop for instant 3D initialization
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setIsReady(true)
+      return
     }
 
-    const schedule = () => {
-      cancelPending()
-
-      const revealSpline = () => {
-        idleId = undefined
-        setIsReady(true)
-      }
-
-      if (win.requestIdleCallback) {
-        idleId = win.requestIdleCallback(revealSpline, { timeout: 900 })
-        return
-      }
-
-      timer = window.setTimeout(revealSpline, 450)
-    }
-
-    schedule()
-
-    return () => {
-      cancelPending()
-    }
+    // On mobile devices, slightly defer to prioritize touch responsiveness
+    const timer = window.setTimeout(() => setIsReady(true), 200)
+    return () => window.clearTimeout(timer)
   }, [])
 
   return isReady
@@ -608,20 +583,20 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
   const smoothX = useSpring(mouseX, springConfig)
   const smoothY = useSpring(mouseY, springConfig)
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+  const updatePosition = useCallback(
+    (clientX: number, clientY: number) => {
       // Smart screen boundary detection for portal positioning
       const portalWidth = Math.min(340, Math.max(260, window.innerWidth * 0.22))
       const portalHeight = portalWidth * 1.25
 
-      let x = e.clientX + 24
-      let y = e.clientY + 24
+      let x = clientX + 24
+      let y = clientY + 24
 
       if (x + portalWidth > window.innerWidth - 16) {
-        x = e.clientX - portalWidth - 24
+        x = clientX - portalWidth - 24
       }
       if (y + portalHeight > window.innerHeight - 16) {
-        y = e.clientY - portalHeight - 24
+        y = clientY - portalHeight - 24
       }
 
       x = Math.max(16, x)
@@ -629,10 +604,17 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
 
       mouseX.set(x)
       mouseY.set(y)
+    },
+    [mouseX, mouseY]
+  )
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      updatePosition(e.clientX, e.clientY)
     }
-    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [mouseX, mouseY])
+  }, [updatePosition])
 
   return (
     <div className="relative py-8 min-h-[50vh] flex items-center justify-center">
@@ -650,7 +632,13 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
               delay: (index % 4) * 0.25,
             }}
             whileHover={{ y: -6, scale: 1.02 }}
-            onMouseEnter={() => setHoveredProject(project)}
+            onMouseEnter={(e) => {
+              updatePosition(e.clientX, e.clientY)
+              setHoveredProject(project)
+            }}
+            onMouseMove={(e) => {
+              updatePosition(e.clientX, e.clientY)
+            }}
             onMouseLeave={() => setHoveredProject(null)}
             onClick={(e) => {
               if (project.href) {
@@ -704,10 +692,6 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
       <AnimatePresence>
         {hoveredProject && previews[hoveredProject.title] && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
             style={{
               position: 'fixed',
               left: 0,
@@ -717,53 +701,60 @@ function ProjectShowcase({ transition }: { transition: Transition }) {
               zIndex: 100,
               pointerEvents: 'none',
             }}
-            className="w-[20vw] min-w-[260px] max-w-[340px] aspect-[4/5] bg-[#0a0d14] border border-white/15 rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden"
           >
-            {/* Sleek mini window bar */}
-            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-mono text-white/70 select-none">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="h-2 w-2 rounded-full bg-red-500/80" />
-                  <span className="h-2 w-2 rounded-full bg-amber-500/80" />
-                  <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+              className="w-[20vw] min-w-[260px] max-w-[340px] aspect-[4/5] bg-[#0a0d14] border border-white/15 rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden"
+            >
+              {/* Sleek mini window bar */}
+              <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-mono text-white/70 select-none">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <span className="h-2 w-2 rounded-full bg-red-500/80" />
+                    <span className="h-2 w-2 rounded-full bg-amber-500/80" />
+                    <span className="h-2 w-2 rounded-full bg-emerald-500/80" />
+                  </div>
+                  <span className="truncate max-w-[130px] font-medium text-white/90 text-[10.5px]">
+                    {hoveredProject.title}
+                  </span>
                 </div>
-                <span className="truncate max-w-[130px] font-medium text-white/90 text-[10.5px]">
-                  {hoveredProject.title}
+                <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold flex-shrink-0">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Live Preview
                 </span>
               </div>
-              <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold flex-shrink-0">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live Preview
-              </span>
-            </div>
 
-            {/* The Scrolling "Video" Portal */}
-            <div className="relative h-[calc(100%-29px)] w-full overflow-hidden bg-[#0a0d14]">
-              <motion.div
-                key={hoveredProject.title}
-                className="absolute w-full pointer-events-none"
-                style={{ willChange: 'transform, top' }}
-                initial={{ top: '0%', y: '0%' }}
-                animate={{
-                  top: ['0%', '0%', '100%', '100%', '0%'],
-                  y: ['0%', '0%', '-100%', '-100%', '0%'],
-                }}
-                transition={{
-                  duration: previewDurations[hoveredProject.title] || 16,
-                  times: [0, 0.08, 0.50, 0.58, 1],
-                  ease: 'easeInOut',
-                  repeat: Infinity,
-                }}
-              >
-                <img
-                  src={previews[hoveredProject.title]}
-                  alt={hoveredProject.title}
-                  className="w-full h-auto object-cover opacity-100 block"
-                  loading="eager"
-                  decoding="async"
-                />
-              </motion.div>
-            </div>
+              {/* The Scrolling "Video" Portal */}
+              <div className="relative h-[calc(100%-29px)] w-full overflow-hidden bg-[#0a0d14]">
+                <motion.div
+                  key={hoveredProject.title}
+                  className="absolute w-full pointer-events-none"
+                  style={{ willChange: 'transform, top' }}
+                  initial={{ top: '0%', y: '0%' }}
+                  animate={{
+                    top: ['0%', '0%', '100%', '100%', '0%'],
+                    y: ['0%', '0%', '-100%', '-100%', '0%'],
+                  }}
+                  transition={{
+                    duration: previewDurations[hoveredProject.title] || 16,
+                    times: [0, 0.08, 0.50, 0.58, 1],
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                  }}
+                >
+                  <img
+                    src={previews[hoveredProject.title]}
+                    alt={hoveredProject.title}
+                    className="w-full h-auto object-cover opacity-100 block"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </motion.div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
